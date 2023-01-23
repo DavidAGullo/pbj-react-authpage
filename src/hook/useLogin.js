@@ -1,20 +1,12 @@
 import { useState } from 'react';
+import { useMutation } from 'react-query';
 import pb from '../lib/pocketbase';
 
 export default function useLogin() {
-    const [isLoading, setisLoading] = useState(false);
-
-    async function login({data}) {
-        setisLoading(true);
-        try{
-            const authData = await pb
-            .collection('users')
-            .authWithPassword(data.username, data.password);
-        }
-        catch(error){
-            console.log(error);
-        }
-        setisLoading(false);
+    async function login({username, password}) {
+        const authData = await pb
+        .collection('users')
+        .authWithPassword(username, password);
     }
-    return login, isLoading;
+    return useMutation(login);
 }
