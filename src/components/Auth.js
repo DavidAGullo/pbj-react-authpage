@@ -3,6 +3,7 @@ import useLogout from '../hook/useLogout';
 import useLogin from '../hook/useLogin';
 import React, {useState, Component, PureComponent} from 'react';
 import {useForm} from 'react-hook-form';
+import useVerify from '../hook/useVerify';
 import pb from '../lib/pocketbase';
 import './Auth.css';
 import { isError } from 'react-query';
@@ -15,6 +16,7 @@ const Auth = () => {
 
     //login function
     const logout = useLogout();
+    const {isVerified, sendVerificationEmail} = useVerify();
     const {mutate: login, isLoading, isError} = useLogin();
 
     async function onSubmit(data){
@@ -26,6 +28,8 @@ const Auth = () => {
         return (
             <div className='login-auth'>
                 <div className='loginheader'><h1>Welcome, {pb.authStore.model.username}!</h1></div>
+                <p>Verified: {isVerified.toString()}</p>
+                {!isVerified && <button onClick={sendVerificationEmail}>Send Verfication Email</button>} <br></br>
                 <button onClick={logout}>Logout</button>
             </div>    
         );
