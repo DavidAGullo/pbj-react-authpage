@@ -3,7 +3,7 @@ import useLogout from '../hook/useLogout';
 import useLogin from '../hook/useLogin';
 import React, {useState, Component, PureComponent} from 'react';
 import {useForm} from 'react-hook-form';
-import useVerify from '../hook/useVerify';
+import useVerify, { requestVerification } from '../hook/useVerify';
 import pb from '../lib/pocketbase';
 import './Auth.css';
 import { isError } from 'react-query';
@@ -16,21 +16,24 @@ const Auth = () => {
 
     //login function
     const logout = useLogout();
-    const {isVerified, sendVerificationEmail} = useVerify();
+    const {data: isVerified} = useVerify();
     const {mutate: login, isLoading, isError} = useLogin();
 
     async function onSubmit(data){
-        login({username: data.username, password: data.password})
+        login({email: data.email, password: data.password})
         reset();
+    }
+    function onLogout(){
+        logout();
     }
 
     if (isLoggedin) {
         return (
             <div className='login-auth'>
                 <div className='loginheader'><h1>Welcome, {pb.authStore.model.username}!</h1></div>
-                <p>Verified: {isVerified.toString()}</p>
-                {!isVerified && <button onClick={sendVerificationEmail}>Send Verfication Email</button>} <br></br>
-                <button onClick={logout}>Logout</button>
+                <p>Verified: {""+isVerified}</p>
+                {!isVerified && <button onClick={requestVerification}>Send Verfication Email</button>}
+                <button onClick={onLogout}>Logout</button>
             </div>    
         );
     }
@@ -38,9 +41,9 @@ const Auth = () => {
         <div className='login-auth'>
             <div className='loginheader'><h1>Please Login</h1></div>
             {isLoading && <p>Logging in...</p>}
-            {isError && <p>Invalid username or password</p>}
+            {isError && <p>Invalid email or password</p>}
             <form onSubmit={handleSubmit(onSubmit)}>
-                <input type="text" name="username" placeholder="Username" {...register("username")} />
+                <input type="text" name="email" placeholder="Email" {...register("email")} />
                 <input 
                     type="password" 
                     name="password" 
